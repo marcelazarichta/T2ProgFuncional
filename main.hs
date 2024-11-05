@@ -7,8 +7,18 @@ data Computador = Computador {
 } deriving (Show)
 
 
+testProgram :: [(Int, Int)]
+testProgram = [
+    (0, 2),    -- LOD 240
+    (1, 240),  -- ADD 241
+    (2, 14),   -- STO 251
+    (3, 241),  -- HLT
+    (240, 1),  -- Endereço com valor 1
+    (241, 2),  -- Endereço com valor 2
+    (251, 0)   -- Endereço que será atualizado
+    ]
 
-prog1 :: [(Int,Int)]
+--prog1 :: [(Int,Int)]
 
 -- Intrução LOD
 -- execLOD(endereco,mem,acc,eqz)=(mem,acc,eqz)
@@ -37,9 +47,13 @@ execNOP (mem, acc, eqz) = (mem, acc, eqz)
 
 -- Retorna o que está armazenado no endereço de memória recebido
 readMem :: [(Int,Int)] -> Int -> Int
-readMem (m:ms) e
-    | e == fst m = snd m
-    | e /= fst m = readMem ms e
+readMem (m:ms) endereco
+    | endereco == fst m = snd m
+    | endereco /= fst m = readMem ms endereco
 
 -- writeMem(memoria,endereço,conteudo) = memoria
-writeMem :: ([(Int,Int), Int, Int]) -> [Int,Int]
+writeMem :: [(Int,Int)] -> Int -> Int -> [(Int,Int)]
+writeMem [] endereco valor = []
+writeMem (m:ms) endereco valor
+    | endereco == fst m = (endereco, valor) : ms
+    | otherwise = m : writeMem ms endereco valor
