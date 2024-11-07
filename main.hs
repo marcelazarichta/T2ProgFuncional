@@ -53,11 +53,15 @@ execCPE end (mem, acc, eqz)
 -- acumulador (ACC) e armazena a resposta no próprio acumulador.
 -- execADD (end, mem, acc, eqz) = (acc, mem, eqz)
 execADD :: Int -> ([(Int, Int)], Int, Int) -> ([(Int, Int)], Int, Int)
-execADD end (mem, acc, eqz) = (mem, readMem mem end + acc, eqz)
+execADD end (mem, acc, eqz) = (mem, acc + readMem mem end, eqz)
 
 
 -- Instrucao SUB
-
+-- Subtrai o conteúdo do endereço de memória do conteúdo do 
+-- acumulador (ACC) e armazena a resposta no próprio acumulador.
+-- execSUB (end, mem, acc, eqz) = (acc, mem, eqz)
+execSUB :: Int -> ([(Int, Int)], Int, Int) -> ([(Int, Int)], Int, Int)
+execSUB end (mem, acc, eqz) = (mem, acc - readMem mem end, eqz)
 
 -- Instrução NOP
 -- execNOP(memoria,acc,eqz)=(memoria,acc,eqz)
