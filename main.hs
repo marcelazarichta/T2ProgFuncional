@@ -40,8 +40,8 @@ execSTO end (mem, acc, eqz) = (writeMem mem end acc, acc, eqz)
 -- Instrucao JMZ
 
 -- Instrucao CPE
--- Se o conteúdo do endereço for igual ao acumulador, 
--- coloca 0 no acumulador, caso contrário coloca 1.
+-- Se o conteúdo do endereço for igual ao acumulador, coloca 0 no acumulador,
+-- caso contrário coloca 1.
 -- execCPE (end, mem, acc, eqz) = (mem, acc, eqz) 
 execCPE :: Int -> ([(Int, Int)], Int, Int) -> ([(Int, Int)], Int, Int)
 execCPE end (mem, acc, eqz) 
@@ -49,6 +49,12 @@ execCPE end (mem, acc, eqz)
     | readMem mem end /= acc = (mem, 1, eqz)
 
 -- Instrucao ADD
+-- Adiciona o conteúdo do endereço de memória ao conteúdo armazenado no 
+-- acumulador (ACC) e armazena a resposta no próprio acumulador.
+-- execADD (end, mem, acc, eqz) = (acc, mem, eqz)
+execADD :: Int -> ([(Int, Int)], Int, Int) -> ([(Int, Int)], Int, Int)
+execADD end (mem, acc, eqz) = (mem, readMem mem end + acc, eqz)
+
 
 -- Instrucao SUB
 
@@ -70,7 +76,6 @@ readMem (m:ms) end
 -- Armazenar o conteúdo em um endereço de memória
 -- writeMem(mem,end,conteudo) = memoria
 writeMem :: [(Int,Int)] -> Int -> Int -> [(Int,Int)]
-writeMem [] end valor = []
 writeMem (m:ms) end valor
     | end == fst m = (end, valor) : ms
     | otherwise = m : writeMem ms end valor
