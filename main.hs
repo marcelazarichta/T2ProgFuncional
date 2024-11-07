@@ -1,10 +1,10 @@
 data Computador = Computador {
-    mem :: [(Int, Int)], -- Memória 
-    acc :: Int, -- Registrador acumulador
-    pc :: Int, --
-    ir :: Int,
-    eqz :: Int
-} deriving (Show)
+    mem :: [(Int, Int)], -- memória 
+    acc :: Int, -- registrador acumulador
+    pc :: Int, -- contador de instruções
+    ir :: Int, -- armazena a instrucao atual
+    eqz :: Int -- flag zero
+} deriving (Show) -- permite que os valores sejam exibidos como String
 
 
 testProgram :: [(Int, Int)]
@@ -22,21 +22,31 @@ testProgram = [
 
 -- Intrução LOD
 -- Carrega o conteúdo do endereço de memória no registrador acumulador
--- execLOD(endereco,mem,acc,eqz)=(mem,acc,eqz)
+-- execLOD(end,mem,acc,eqz)=(mem,acc,eqz)
 execLOD :: Int -> ([(Int,Int)], Int, Int) -> ([(Int,Int)], Int, Int)
 execLOD end (mem, acc, eqz) = (mem, readMem mem end, eqz)
 
 -- Instrucao STO
 -- Armazena o conteúdo do registrador acumulador (ACC) no endereço de memória 
---execSTO(endereco,mem,acc,eqz) = (mem, acc, eqz)
+--execSTO(end,mem,acc,eqz) = (mem, acc, eqz)
 execSTO :: Int -> ([(Int,Int)], Int, Int) -> ([(Int, Int)], Int, Int)
 execSTO end (mem, acc, eqz) = (writeMem mem end acc, acc, eqz)
 
 -- Instrucao JMP
+-- Desvio incondicional: carrega no contador de instruções o valor forçando com que
+-- a próxima instrução a ser executada seja a que se encontra no endereço de memória.
+
 
 -- Instrucao JMZ
 
---Instrucao CPE
+-- Instrucao CPE
+-- Se o conteúdo do endereço for igual ao acumulador, 
+-- coloca 0 no acumulador, caso contrário coloca 1.
+-- execCPE (end, mem, acc, eqz) = (mem, acc, eqz) 
+execCPE :: Int -> ([(Int, Int)], Int, Int) -> ([(Int, Int)], Int, Int)
+execCPE end (mem, acc, eqz) 
+    | readMem mem end == acc = (mem, 0, eqz)
+    | readMem mem end /= acc = (mem, 1, eqz)
 
 -- Instrucao ADD
 
@@ -51,16 +61,16 @@ execNOP (mem, acc, eqz) = (mem, acc, eqz)
 -- Instrucao HTL
 
 -- Retorna o que está armazenado no endereço de memória recebido
---readMem(memoria,endereco)=conteudo
+--readMem(memoria,end)=conteudo
 readMem :: [(Int,Int)] -> Int -> Int
-readMem (m:ms) endereco
-    | endereco == fst m = snd m
-    | endereco /= fst m = readMem ms endereco
+readMem (m:ms) end
+    | end == fst m = snd m
+    | end /= fst m = readMem ms end
 
 -- Armazenar o conteúdo em um endereço de memória
--- writeMem(memoria,endereço,conteudo) = memoria
+-- writeMem(mem,end,conteudo) = memoria
 writeMem :: [(Int,Int)] -> Int -> Int -> [(Int,Int)]
-writeMem [] endereco valor = []
-writeMem (m:ms) endereco valor
-    | endereco == fst m = (endereco, valor) : ms
-    | otherwise = m : writeMem ms endereco valor
+writeMem [] end valor = []
+writeMem (m:ms) end valor
+    | end == fst m = (end, valor) : ms
+    | otherwise = m : writeMem ms end valor
