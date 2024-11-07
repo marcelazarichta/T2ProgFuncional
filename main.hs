@@ -6,6 +6,15 @@ data Computador = Computador {
     eqz :: Int -- flag zero
 } deriving (Show) -- permite que os valores sejam exibidos como String
 
+inicializaComputador :: [(Int, Int)] -> Computador
+inicializaComputador testProgram Computador {
+    mem = memoriaInicial,  
+    acc = 0,               
+    pc = 0,               
+    ir = 0,               
+    eqz = 0                -- 0 = não é zero
+} 
+
 
 testProgram :: [(Int, Int)]
 testProgram = [
