@@ -1,7 +1,7 @@
 data Computador = Computador {
-    mem :: [(Int, Int)],
-    acc :: Int,
-    pc :: Int,
+    mem :: [(Int, Int)], -- Memória 
+    acc :: Int, -- Registrador acumulador
+    pc :: Int, --
     ir :: Int,
     eqz :: Int
 } deriving (Show)
@@ -21,11 +21,16 @@ testProgram = [
 --prog1 :: [(Int,Int)]
 
 -- Intrução LOD
+-- Carrega o conteúdo do endereço de memória no registrador acumulador
 -- execLOD(endereco,mem,acc,eqz)=(mem,acc,eqz)
 execLOD :: Int -> ([(Int,Int)], Int, Int) -> ([(Int,Int)], Int, Int)
 execLOD end (mem, acc, eqz) = (mem, readMem mem end, eqz)
 
 -- Instrucao STO
+-- Armazena o conteúdo do registrador acumulador (ACC) no endereço de memória 
+--execSTO(endereco,mem,acc,eqz) = (mem, acc, eqz)
+execSTO :: Int -> ([(Int,Int)], Int, Int) -> ([(Int, Int)], Int, Int)
+execSTO end (mem, acc, eqz) = (writeMem mem end acc, acc, eqz)
 
 -- Instrucao JMP
 
@@ -46,11 +51,13 @@ execNOP (mem, acc, eqz) = (mem, acc, eqz)
 -- Instrucao HTL
 
 -- Retorna o que está armazenado no endereço de memória recebido
+--readMem(memoria,endereco)=conteudo
 readMem :: [(Int,Int)] -> Int -> Int
 readMem (m:ms) endereco
     | endereco == fst m = snd m
     | endereco /= fst m = readMem ms endereco
 
+-- Armazenar o conteúdo em um endereço de memória
 -- writeMem(memoria,endereço,conteudo) = memoria
 writeMem :: [(Int,Int)] -> Int -> Int -> [(Int,Int)]
 writeMem [] endereco valor = []
