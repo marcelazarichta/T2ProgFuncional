@@ -7,8 +7,9 @@ data Computador = Computador {
 } deriving (Show) -- permite que os valores sejam exibidos como String
 
 inicializaComputador :: [(Int, Int)] -> Computador
-inicializaComputador testProgram Computador {
-    mem = memoriaInicial,  
+
+inicializaComputador testProgram = Computador {
+    mem = testProgram,  
     acc = 0,               
     pc = 0,               
     ir = 0,               
