@@ -8,16 +8,16 @@ data Computador = Computador {
 
 
 inicializaComputador :: [(Int, Int)] -> Computador
-inicializaComputador testProgram = Computador {
-    mem = testProgram,  
+inicializaComputador memoria = Computador {
+    mem = memoria,  
     acc = 0,               
     pc = 0,               
     ir = 0,               
     eqz = 1 -- 0 = não é zero
 } 
 
-testProgram :: [(Int, Int)]
-testProgram = [
+testePrograma :: [(Int, Int)]
+testePrograma = [
     (0, 2),    -- LOD 240
     (1, 240), 
     (2, 14),   -- ADD 241
@@ -30,6 +30,20 @@ testProgram = [
     (241, 1),  -- Endereço com valor 2
     (251, 0)   -- Endereço que será atualizado
     ]
+
+testePrograma2 :: [(Int, Int)]
+testePrograma2 =  [
+    (0,2), (1,240), -- LOD 240
+    (2,14), (3,241), -- ADD 241
+    (4,16), (5,242), -- SUB 242
+    (6,4), (7,251), -- STO 251
+    (8,20), (9,18), -- HTL NOP
+    (240,12),
+    (241,3),
+    (242,2),
+    (251,0)
+    ]
+    
 
 -- executaCiclo :: Computador -> Computador
 -- executaCiclo computador
@@ -131,7 +145,6 @@ execHLT computador = computador {pc = -1}
 -- Retorna o que está armazenado no endereço de memória recebido
 --readMem(memoria,end)=conteudo
 readMem :: [(Int,Int)] -> Int -> Int
-readMem [] _ = error "Endereço não encontrado na memória"  -- Caso de erro se o endereço não for encontrado
 readMem (m:ms) end
     | end == fst m = snd m
     | end /= fst m = readMem ms end
@@ -146,6 +159,6 @@ writeMem (m:ms) end valor
 
 main :: IO ()
 main = do
-    let computador = inicializaComputador testProgram
+    let computador = inicializaComputador testePrograma2
     computadorFinal <- executaCicloComImpressao computador
     print computadorFinal
