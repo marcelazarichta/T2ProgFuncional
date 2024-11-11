@@ -8,30 +8,41 @@ data Computador = Computador {
 
 
 inicializaComputador :: [(Int, Int)] -> Computador
-inicializaComputador testProgram Computador {
-    mem = memoriaInicial,  
+inicializaComputador testProgram = Computador {
+    mem = testProgram,  
     acc = 0,               
     pc = 0,               
     ir = 0,               
-    eqz = 0 -- 0 = não é zero
+    eqz = 1 -- 0 = não é zero
 } 
 
 testProgram :: [(Int, Int)]
 testProgram = [
     (0, 2),    -- LOD 240
-    (1, 240),  -- ADD 241
-    (2, 14),   -- STO 251
-    (3, 241),  -- HLT
-    (240, 1),  -- Endereço com valor 1
-    (241, 2),  -- Endereço com valor 2
+    (1, 240), 
+    (2, 14),   -- ADD 241
+    (3, 241),  
+    (4,4),     -- STO 251
+    (5,251),
+    (6,20),    -- HTL 
+    (7,18),
+    (240, 0),  -- Endereço com valor 1
+    (241, 1),  -- Endereço com valor 2
     (251, 0)   -- Endereço que será atualizado
     ]
 
-executaCiclo :: Computador -> Computador
-executaCiclo computador
-    | pc computador == -1 = computador 
-    | otherwise = executaCiclo (executaInstrucao (computador {pc = pc computador + 2}))
+-- executaCiclo :: Computador -> Computador
+-- executaCiclo computador
+--     | pc computador == -1 = computador 
+--     | otherwise = executaCiclo (executaInstrucao (computador {pc = pc computador + 2}))
 
+executaCicloComImpressao :: Computador -> IO Computador
+executaCicloComImpressao computador
+    | pc computador == -1 = return computador
+    | otherwise = do
+        print computador
+        let computadorNovo = executaInstrucao computador
+        executaCicloComImpressao computadorNovo
 
 executaInstrucao :: Computador -> Computador
 executaInstrucao computador =
@@ -50,13 +61,10 @@ executaInstrucao computador =
 
 -- Intrução LOD
 -- Carrega o conteúdo do endereço de memória no registrador acumulador
--- execLOD(end,mem,acc,eqz)=(mem,acc,eqz)
--- execLOD :: Int -> ([(Int,Int)], Int, Int) -> ([(Int,Int)], Int, Int)
--- execLOD end (mem, acc, eqz) = (mem, readMem mem end, eqz)
 execLOD :: Int -> Computador -> Computador
 execLOD endereco computador =
     let novoAcc = readMem (mem computador) endereco
-    in computador {acc = novoAcc, eqz = if novoAcc == 0 then 1 else 0}
+    in computador {pc = pc computador + 2, acc = novoAcc, eqz = if novoAcc == 0 then 1 else 0}
 
 
 -- Instrucao STO
@@ -64,7 +72,7 @@ execLOD endereco computador =
 execSTO :: Int -> Computador -> Computador
 execSTO endereco computador = 
     let novaMem = writeMem (mem computador) endereco (acc computador)
-    in computador {mem = novaMem}
+    in computador {pc = pc computador + 2, mem = novaMem}
     
 
 -- Instrucao JMP
@@ -80,7 +88,7 @@ execJMP endereco computador = computador {pc = endereco}
 execJMZ :: Int -> Computador -> Computador
 execJMZ endereco computador 
     | eqz computador == 1 = computador {pc = endereco}
-    | eqz computador /= 1 = computador
+    | eqz computador /= 1 = computador {pc = pc computador + 2}
 
 
 -- Instrucao CPE
@@ -88,8 +96,8 @@ execJMZ endereco computador
 -- caso contrário coloca 1.
 execCPE :: Int -> Computador -> Computador
 execCPE endereco computador  
-    | readMem (mem computador) endereco == acc computador = computador {acc = 0, eqz = 1}
-    | readMem (mem computador) endereco /= acc computador = computador {acc = 1, eqz = 0}
+    | readMem (mem computador) endereco == acc computador = computador {acc = 0, eqz = 1, pc = pc computador + 2}
+    | readMem (mem computador) endereco /= acc computador = computador {acc = 1, eqz = 0, pc = pc computador + 2}
 
 
 -- Instrucao ADD
@@ -98,7 +106,7 @@ execCPE endereco computador
 execADD :: Int -> Computador -> Computador
 execADD endereco computador = 
     let novoAcc = (acc computador) + readMem (mem computador) endereco
-    in computador {acc = novoAcc, eqz = if novoAcc == 0 then 1 else 0}
+    in computador {pc = pc computador + 2, acc = novoAcc, eqz = if novoAcc == 0 then 1 else 0}
 
 
 -- Instrucao SUB
@@ -107,12 +115,12 @@ execADD endereco computador =
 execSUB :: Int -> Computador -> Computador
 execSUB endereco computador = 
     let novoAcc = (acc computador) - readMem (mem computador) endereco
-    in computador {acc = novoAcc, eqz = if novoAcc == 0 then 1 else 0}
+    in computador {pc = pc computador + 2, acc = novoAcc, eqz = if novoAcc == 0 then 1 else 0}
 
 
 -- Instrução NOP
 execNOP :: Computador -> Computador
-execNOP computador = computador
+execNOP computador = computador {pc = pc computador + 2}
 
 -- Instrucao HTL
 -- Encerra o ciclo de execução do processador (HaLT)
@@ -139,5 +147,5 @@ writeMem (m:ms) end valor
 main :: IO ()
 main = do
     let computador = inicializaComputador testProgram
-    let computadorFinal = executaCiclo computador
+    computadorFinal <- executaCicloComImpressao computador
     print computadorFinal
