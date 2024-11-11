@@ -8,8 +8,8 @@ data Computador = Computador {
 
 
 inicializaComputador :: [(Int, Int)] -> Computador
-inicializaComputador testProgram = Computador {
-    mem = testProgram,  
+inicializaComputador testProgram Computador {
+    mem = memoriaInicial,  
     acc = 0,               
     pc = 0,               
     ir = 0,               
