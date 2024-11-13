@@ -45,18 +45,20 @@ testePrograma2 =  [
     ]
     
 
--- executaCiclo :: Computador -> Computador
--- executaCiclo computador
---     | pc computador == -1 = computador 
---     | otherwise = executaCiclo (executaInstrucao (computador {pc = pc computador + 2}))
+executaCiclo :: Computador -> Computador
+executaCiclo computador
+    | pc computador == -1 = computador  
+    | otherwise = executaCiclo (executaInstrucao computador)
+
 
 executaCicloComImpressao :: Computador -> IO Computador
 executaCicloComImpressao computador
     | pc computador == -1 = return computador
     | otherwise = do
-        print computador
+        print computador 
         let computadorNovo = executaInstrucao computador
         executaCicloComImpressao computadorNovo
+
 
 executaInstrucao :: Computador -> Computador
 executaInstrucao computador =
@@ -77,7 +79,7 @@ executaInstrucao computador =
 -- Carrega o conteúdo do endereço de memória no registrador acumulador
 execLOD :: Int -> Computador -> Computador
 execLOD endereco computador =
-    let novoAcc = readMem (mem computador) endereco
+    let novoAcc = truncamento (readMem (mem computador) endereco)
     in computador {pc = pc computador + 2, acc = novoAcc, eqz = if novoAcc == 0 then 1 else 0}
 
 
@@ -119,7 +121,7 @@ execCPE endereco computador
 -- acumulador (ACC) e armazena a resposta no próprio acumulador.
 execADD :: Int -> Computador -> Computador
 execADD endereco computador = 
-    let novoAcc = (acc computador) + readMem (mem computador) endereco
+    let novoAcc = truncamento ((acc computador) + readMem (mem computador) endereco)
     in computador {pc = pc computador + 2, acc = novoAcc, eqz = if novoAcc == 0 then 1 else 0}
 
 
@@ -128,7 +130,7 @@ execADD endereco computador =
 -- acumulador (ACC) e armazena a resposta no próprio acumulador.
 execSUB :: Int -> Computador -> Computador
 execSUB endereco computador = 
-    let novoAcc = (acc computador) - readMem (mem computador) endereco
+    let novoAcc = truncamento ((acc computador) - readMem (mem computador) endereco)
     in computador {pc = pc computador + 2, acc = novoAcc, eqz = if novoAcc == 0 then 1 else 0}
 
 
@@ -140,6 +142,14 @@ execNOP computador = computador {pc = pc computador + 2}
 -- Encerra o ciclo de execução do processador (HaLT)
 execHLT :: Computador -> Computador
 execHLT computador = computador {pc = -1} 
+
+-- 
+truncamento :: Int -> Int
+truncamento numero
+    | numero < -128  = -128     
+    | numero > 127   = 127      
+    | numero > -128 && numero < 177 = numero        
+
 
 
 -- Retorna o que está armazenado no endereço de memória recebido
@@ -162,3 +172,4 @@ main = do
     let computador = inicializaComputador testePrograma2
     computadorFinal <- executaCicloComImpressao computador
     print computadorFinal
+
