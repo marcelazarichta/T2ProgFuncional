@@ -1,3 +1,7 @@
+import System.IO (readFile)
+import Data.List (lines)
+import Data.Char (isSpace)
+
 data Computador = Computador {
     mem :: [(Int, Int)], -- memória 
     acc :: Int, -- registrador acumulador
@@ -16,33 +20,34 @@ inicializaComputador memoria = Computador {
     eqz = 1 -- 0 = não é zero
 } 
 
-testePrograma :: [(Int, Int)]
-testePrograma = [
-    (0, 2),    -- LOD 240
-    (1, 240), 
-    (2, 14),   -- ADD 241
-    (3, 241),  
-    (4,4),     -- STO 251
-    (5,251),
-    (6,20),    -- HTL 
-    (7,18),
-    (240, 0),  -- Endereço com valor 1
-    (241, 1),  -- Endereço com valor 2
-    (251, 0)   -- Endereço que será atualizado
-    ]
+--testePrograma :: [(Int, Int)]
+--testePrograma = [
+--    (0, 2),    -- LOD 240
+--    (1, 240), 
+--    (2, 14),   -- ADD 241
+--    (3, 241),  
+--    (4,4),     -- STO 251
+--    (5,251),
+--    (6,20),    -- HTL 
+--    (7,18),
+--    (240, 0),  -- Endereço com valor 1
+--    (241, 1),  -- Endereço com valor 2
+--    (251, 0)   -- Endereço que será atualizado
+--    ]
 
-testePrograma2 :: [(Int, Int)]
-testePrograma2 =  [
-    (0,2), (1,240), -- LOD 240
-    (2,14), (3,241), -- ADD 241
-    (4,16), (5,242), -- SUB 242
-    (6,4), (7,251), -- STO 251
-    (8,20), (9,18), -- HTL NOP
-    (240,12),
-    (241,3),
-    (242,2),
-    (251,0)
-    ]
+--testePrograma2 :: [(Int, Int)]
+--testePrograma2 =  [
+--    (0,2), (1,240), -- LOD 240
+--    (2,14), (3,241), -- ADD 241
+--    (4,16), (5,242), -- SUB 242
+--    (6,4), (7,251), -- STO 251
+--    (8,20), (9,18), -- HTL NOP
+--    (240,12),
+--    (241,3),
+--    (242,2),
+--    (251,0)
+--    ]
+    
     
 
 executaCiclo :: Computador -> Computador
@@ -166,10 +171,26 @@ writeMem (m:ms) end valor
     | end == fst m = (end, valor) : ms
     | otherwise = m : writeMem ms end valor
 
+carregarMemoriaDeArquivo :: FilePath -> IO [(Int, Int)]
+carregarMemoriaDeArquivo caminho = do
+    conteudo <- readFile caminho
+    return (map linhaParaTupla (lines conteudo))
+
+linhaParaTupla :: String -> (Int, Int)
+linhaParaTupla linha = 
+    let [enderecoStr, valorStr] = words linha
+    in (read enderecoStr :: Int, read valorStr :: Int)
+
 
 main :: IO ()
 main = do
-    let computador = inicializaComputador testePrograma2
+    -- Carrega a memória do arquivo "memoria.txt"
+    memoria <- carregarMemoriaDeArquivo "memoria.txt"  -- Caminho do arquivo
+    putStrLn "Memória carregada do arquivo memoria.txt:"
+    print memoria  -- Imprime a memória para verificação
+    let computador = inicializaComputador memoria
     computadorFinal <- executaCicloComImpressao computador
+    putStrLn ""
+    putStrLn "Estado final do computador:"
     print computadorFinal
 
